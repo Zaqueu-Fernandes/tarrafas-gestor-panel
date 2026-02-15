@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/tarrafas-gestor-panel/",
+  base: mode === "production" ? "/tarrafas-gestor-panel/" : "/",
   server: {
     host: "::",
     port: 8080,
