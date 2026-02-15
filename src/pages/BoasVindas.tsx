@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabaseExt } from '@/lib/supabaseExternal';
+import { slugify } from '@/lib/slugify';
 import AppLayout from '@/components/layout/AppLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,10 @@ const DEPT_ICONS: Record<string, string> = {
   'Gabinete do Prefeito': 'fa-building-columns',
 };
 
-const IMPLEMENTED = ['Contabilidade', 'Licitação e Contratos', 'Recursos Humanos', 'Jurídico', 'Contas de Governo e Gestão', 'Gabinete do Prefeito'];
+/** Departments that have a dedicated page (not "under development") */
+const IMPLEMENTED_ROUTES: Record<string, string> = {
+  'Contabilidade': '/contabilidade',
+};
 
 interface Dept {
   id: string;
@@ -46,18 +50,9 @@ const BoasVindas = () => {
     })();
   }, [user]);
 
-  const DEPT_SLUGS: Record<string, string> = {
-    'Contabilidade': '/contabilidade',
-    'Licitação e Contratos': '/departamento/licitacao',
-    'Recursos Humanos': '/departamento/rh',
-    'Jurídico': '/departamento/juridico',
-    'Contas de Governo e Gestão': '/departamento/contas',
-    'Gabinete do Prefeito': '/departamento/gabinete',
-  };
-
   const handleDeptClick = (nome: string) => {
-    const route = DEPT_SLUGS[nome];
-    if (route) navigate(route);
+    const route = IMPLEMENTED_ROUTES[nome] || `/departamento/${slugify(nome)}`;
+    navigate(route);
   };
 
   return (
@@ -90,25 +85,22 @@ const BoasVindas = () => {
           <p className="text-center text-muted-foreground py-20">Nenhum departamento vinculado.</p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {depts.map((d) => {
-              const implemented = IMPLEMENTED.includes(d.nome);
-              return (
-                <Card
-                  key={d.id}
-                  className="relative overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
-                  onClick={() => handleDeptClick(d.nome)}
-                >
-                  <CardContent className="flex items-center gap-4 p-6">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                      <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-xl text-primary`} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold font-[Montserrat] text-foreground">{d.nome}</h3>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {depts.map((d) => (
+              <Card
+                key={d.id}
+                className="relative overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
+                onClick={() => handleDeptClick(d.nome)}
+              >
+                <CardContent className="flex items-center gap-4 p-6">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                    <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-xl text-primary`} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold font-[Montserrat] text-foreground">{d.nome}</h3>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </div>
