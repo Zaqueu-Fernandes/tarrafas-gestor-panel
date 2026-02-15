@@ -12,6 +12,7 @@ import Confirmacao from "./pages/Confirmacao";
 import BoasVindas from "./pages/BoasVindas";
 import Admin from "./pages/Admin";
 import Contabilidade from "./pages/Contabilidade";
+import Departamento from "./pages/Departamento";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,9 @@ const App = () => (
             } />
             <Route path="/contabilidade" element={
               <ProtectedRoute><Contabilidade /></ProtectedRoute>
+            } />
+            <Route path="/departamento/:slug" element={
+              <ProtectedRoute><Departamento /></ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
