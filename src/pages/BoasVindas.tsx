@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabaseExt } from '@/lib/supabaseExternal';
+import { supabase } from '@/integrations/supabase/client';
 import { slugify } from '@/lib/slugify';
 import AppLayout from '@/components/layout/AppLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,21 +31,30 @@ const BoasVindas = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [depts, setDepts] = useState<Dept[]>([]);
+  const [deptIcons, setDeptIcons] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabaseExt
-        .from('pmt_usuario_departamentos')
-        .select('departamento_id, pmt_departamentos(id, nome)')
-        .eq('usuario_id', user.id);
-      if (data) {
-        const mapped = data.map((d: any) => ({
+      const [deptRes, iconRes] = await Promise.all([
+        supabaseExt
+          .from('pmt_usuario_departamentos')
+          .select('departamento_id, pmt_departamentos(id, nome)')
+          .eq('usuario_id', user.id),
+        supabase.from('dept_icons').select('*'),
+      ]);
+      if (deptRes.data) {
+        const mapped = deptRes.data.map((d: any) => ({
           id: d.pmt_departamentos.id,
           nome: d.pmt_departamentos.nome,
         }));
         setDepts(mapped);
+      }
+      if (iconRes.data) {
+        const map: Record<string, string> = {};
+        iconRes.data.forEach((i: any) => { map[i.dept_id] = i.icon_url; });
+        setDeptIcons(map);
       }
       setLoading(false);
     })();
@@ -92,8 +102,12 @@ const BoasVindas = () => {
                 onClick={() => handleDeptClick(d.nome)}
               >
                 <CardContent className="flex items-center gap-4 p-6">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                    <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-xl text-primary`} />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 overflow-hidden">
+                    {deptIcons[d.id] ? (
+                      <img src={deptIcons[d.id]} alt={d.nome} className="h-full w-full object-cover" />
+                    ) : (
+                      <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-xl text-primary`} />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-semibold font-[Montserrat] text-foreground">{d.nome}</h3>
