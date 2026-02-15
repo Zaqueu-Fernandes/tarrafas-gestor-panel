@@ -1,4 +1,5 @@
 import { Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/layout/AppLayout';
 import WhatsAppButton from '@/components/WhatsAppButton';
 
@@ -6,7 +7,9 @@ interface Props {
   departamento?: string;
 }
 
-const UnderDevelopment = ({ departamento }: Props) => (
+const UnderDevelopment = ({ departamento }: Props) => {
+  const navigate = useNavigate();
+  return (
   <AppLayout>
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
       <div className="relative mb-8">
@@ -37,8 +40,16 @@ const UnderDevelopment = ({ departamento }: Props) => (
       </p>
 
       <WhatsAppButton />
+
+      <button
+        onClick={() => navigate('/boas-vindas')}
+        className="mt-4 text-sm font-medium text-primary hover:underline"
+      >
+        <i className="fa-solid fa-arrow-left mr-1" />Voltar
+      </button>
     </div>
   </AppLayout>
-);
+  );
+};
 
 export default UnderDevelopment;
