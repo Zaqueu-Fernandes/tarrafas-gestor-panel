@@ -15,7 +15,7 @@ const DEPT_ICONS: Record<string, string> = {
   'Gabinete do Prefeito': 'fa-building-columns',
 };
 
-const IMPLEMENTED = ['Contabilidade'];
+const IMPLEMENTED = ['Contabilidade', 'Licitação e Contratos', 'Recursos Humanos', 'Jurídico', 'Contas de Governo e Gestão', 'Gabinete do Prefeito'];
 
 interface Dept {
   id: string;
@@ -46,25 +46,31 @@ const BoasVindas = () => {
     })();
   }, [user]);
 
+  const DEPT_SLUGS: Record<string, string> = {
+    'Contabilidade': '/contabilidade',
+    'Licitação e Contratos': '/departamento/licitacao',
+    'Recursos Humanos': '/departamento/rh',
+    'Jurídico': '/departamento/juridico',
+    'Contas de Governo e Gestão': '/departamento/contas',
+    'Gabinete do Prefeito': '/departamento/gabinete',
+  };
+
   const handleDeptClick = (nome: string) => {
-    if (nome === 'Contabilidade') {
-      navigate('/contabilidade');
-    }
+    const route = DEPT_SLUGS[nome];
+    if (route) navigate(route);
   };
 
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold font-[Montserrat] text-foreground">
-              Bem-Vindo ao Painel do Gestor
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
-              Plataforma centralizada para acompanhamento e gestão do acervo de documentos digitalizados da administração municipal de Tarrafas-CE
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold font-[Montserrat] text-foreground">
+            Bem-Vindo ao Painel do Gestor
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground mx-auto max-w-2xl">
+            Plataforma centralizada para acompanhamento e gestão do acervo de documentos digitalizados da administração municipal de Tarrafas-CE
+          </p>
+          <div className="mt-3 flex items-center justify-center gap-3">
             {user?.role === 'admin' && (
               <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
                 <i className="fa-solid fa-gear mr-2" />Admin
@@ -89,8 +95,8 @@ const BoasVindas = () => {
               return (
                 <Card
                   key={d.id}
-                  className={`relative overflow-hidden transition-all ${implemented ? 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5' : 'opacity-70'}`}
-                  onClick={() => implemented && handleDeptClick(d.nome)}
+                  className="relative overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
+                  onClick={() => handleDeptClick(d.nome)}
                 >
                   <CardContent className="flex items-center gap-4 p-6">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
@@ -98,11 +104,6 @@ const BoasVindas = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold font-[Montserrat] text-foreground">{d.nome}</h3>
-                      {!implemented && (
-                        <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          Em breve
-                        </span>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
