@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/layout/AppLayout';
 import WhatsAppButton from '@/components/WhatsAppButton';
 
-interface Props {
-  departamento?: string;
-}
-
-const UnderDevelopment = ({ departamento }: Props) => {
+const UnderDevelopment = () => {
   const navigate = useNavigate();
   return (
   <AppLayout>
@@ -24,12 +20,6 @@ const UnderDevelopment = ({ departamento }: Props) => {
           strokeWidth={1.5}
         />
       </div>
-
-      {departamento && (
-        <h2 className="mb-2 text-xl font-bold font-[Montserrat] text-foreground">
-          {departamento}
-        </h2>
-      )}
 
       <h3 className="mb-3 text-lg font-semibold font-[Montserrat] text-foreground">
         Esta tela está em desenvolvimento.
