@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <footer className="mt-auto border-t border-border bg-muted/50">
-      <div className="container mx-auto flex flex-col items-center gap-1 px-4 py-3 text-xs text-muted-foreground sm:flex-row sm:justify-between">
+      <div className="container mx-auto flex flex-col items-center justify-center gap-1 px-4 py-3 text-xs text-muted-foreground sm:flex-row sm:gap-3">
         <span>Copyright © 2026 | Zaqueu Fernandes | Suporte Técnico</span>
         <a
           href="https://wa.me/5588994014262"

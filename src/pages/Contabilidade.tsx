@@ -56,6 +56,12 @@ const Contabilidade = () => {
   const [credor, setCreador] = useState('');
   const [docCaixa, setDocCaixa] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [ano, setAno] = useState('');
+  const [mes, setMes] = useState('');
+  const [unidGestora, setUnidGestora] = useState('');
+  const [unidOrcamentaria, setUnidOrcamentaria] = useState('');
+  const [programa, setPrograma] = useState('');
+  const [elemento, setElemento] = useState('');
 
   // Table
   const [sortCol, setSortCol] = useState<keyof Registro>('data');
@@ -81,8 +87,14 @@ const Contabilidade = () => {
     if (credor) f = f.filter(r => r.credor?.toLowerCase().includes(credor.toLowerCase()));
     if (docCaixa) f = f.filter(r => r.doc_caixa?.toLowerCase().includes(docCaixa.toLowerCase()));
     if (descricao) f = f.filter(r => r.descricao?.toLowerCase().includes(descricao.toLowerCase()));
+    if (ano) f = f.filter(r => r.data?.slice(0, 4) === ano);
+    if (mes) f = f.filter(r => r.data?.slice(5, 7) === mes);
+    if (unidGestora) f = f.filter(r => r.unid_gestora?.toLowerCase().includes(unidGestora.toLowerCase()));
+    if (unidOrcamentaria) f = f.filter(r => r.unid_ocamentaria?.toLowerCase().includes(unidOrcamentaria.toLowerCase()));
+    if (programa) f = f.filter(r => r.programa?.toLowerCase().includes(programa.toLowerCase()));
+    if (elemento) f = f.filter(r => String(r.elemento || '').includes(elemento));
     return f;
-  }, [data, dateFrom, dateTo, natureza, categoria, credor, docCaixa, descricao]);
+  }, [data, dateFrom, dateTo, natureza, categoria, credor, docCaixa, descricao, ano, mes, unidGestora, unidOrcamentaria, programa, elemento]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -107,6 +119,8 @@ const Contabilidade = () => {
   const clearFilters = () => {
     setDateFrom(''); setDateTo(''); setNatureza('Todos');
     setCategoria(''); setCreador(''); setDocCaixa(''); setDescricao('');
+    setAno(''); setMes(''); setUnidGestora(''); setUnidOrcamentaria('');
+    setPrograma(''); setElemento('');
     setPage(0);
   };
 
@@ -120,13 +134,30 @@ const Contabilidade = () => {
     return <i className={`fa-solid fa-sort-${sortDir === 'asc' ? 'up' : 'down'} ml-1 text-primary`} />;
   };
 
+  // Unique values
+  const uniqueCategorias = useMemo(() => [...new Set(data.map(r => r.tipo).filter(Boolean))].sort(), [data]);
+  const uniqueAnos = useMemo(() => [...new Set(data.map(r => r.data?.slice(0, 4)).filter(Boolean))].sort(), [data]);
+  const uniqueUnidGestora = useMemo(() => [...new Set(data.map(r => r.unid_gestora).filter(Boolean))].sort(), [data]);
+  const uniqueUnidOrcamentaria = useMemo(() => [...new Set(data.map(r => r.unid_ocamentaria).filter(Boolean))].sort(), [data]);
+  const uniqueProgramas = useMemo(() => [...new Set(data.map(r => r.programa).filter(Boolean))].sort(), [data]);
+  const uniqueElementos = useMemo(() => [...new Set(data.map(r => String(r.elemento)).filter(v => v && v !== 'undefined' && v !== 'null'))].sort(), [data]);
+
+  const MESES = [
+    { value: '01', label: 'Janeiro' }, { value: '02', label: 'Fevereiro' }, { value: '03', label: 'Março' },
+    { value: '04', label: 'Abril' }, { value: '05', label: 'Maio' }, { value: '06', label: 'Junho' },
+    { value: '07', label: 'Julho' }, { value: '08', label: 'Agosto' }, { value: '09', label: 'Setembro' },
+    { value: '10', label: 'Outubro' }, { value: '11', label: 'Novembro' }, { value: '12', label: 'Dezembro' },
+  ];
+
   // Charts data
   const pieData = useMemo(() => {
     const map: Record<string, number> = {};
-    filtered.filter(r => r.natureza === 'Despesa').forEach(r => {
-      map[r.unid_gestora] = (map[r.unid_gestora] || 0) + (r.despesas || 0);
+    filtered.forEach(r => {
+      if (r.unid_gestora) {
+        map[r.unid_gestora] = (map[r.unid_gestora] || 0) + (r.despesas || 0);
+      }
     });
-    return Object.entries(map).map(([name, value]) => ({ name, value }));
+    return Object.entries(map).filter(([, v]) => v > 0).map(([name, value]) => ({ name, value }));
   }, [filtered]);
 
   const lineData = useMemo(() => {
@@ -153,65 +184,75 @@ const Contabilidade = () => {
       .map(([name, value]) => ({ name, value }));
   }, [filtered]);
 
-  // Unique values for comboboxes
-  const uniqueCredores = useMemo(() => [...new Set(data.map(r => r.credor).filter(Boolean))].sort(), [data]);
-  const uniqueCategorias = useMemo(() => [...new Set(data.map(r => r.tipo).filter(Boolean))].sort(), [data]);
-
   const exportPDF = useCallback(() => {
     const doc = new jsPDF('l', 'mm', 'a4');
-    // Header
-    doc.setFontSize(16);
-    doc.text('Painel do Gestor - Prefeitura Municipal de Tarrafas-CE', 14, 15);
-    doc.setFontSize(10);
-    doc.setDrawColor(200);
-    doc.line(14, 18, 283, 18);
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    // Header - centered
+    doc.setFontSize(14);
+    const title = 'Painel do Gestor - Prefeitura Municipal de Tarrafas-CE';
+    doc.text(title, pageW / 2, 13, { align: 'center' });
+    doc.setFontSize(9);
+    doc.text('Relatório de Digitalização', pageW / 2, 18, { align: 'center' });
+    doc.setDrawColor(180);
+    doc.line(14, 21, pageW - 14, 21);
 
     // Filters
-    let y = 24;
-    doc.setFontSize(9);
+    let y = 26;
+    doc.setFontSize(8);
     const filters = [];
     if (dateFrom) filters.push(`De: ${dateFrom}`);
     if (dateTo) filters.push(`Até: ${dateTo}`);
     if (natureza !== 'Todos') filters.push(`Natureza: ${natureza}`);
-    if (categoria) filters.push(`Categoria: ${categoria}`);
+    if (categoria) filters.push(`Tipo: ${categoria}`);
     if (credor) filters.push(`Credor: ${credor}`);
+    if (ano) filters.push(`Ano: ${ano}`);
+    if (mes) filters.push(`Mês: ${mes}`);
     if (filters.length) {
       doc.text(`Filtros: ${filters.join(' | ')}`, 14, y);
-      y += 6;
+      y += 5;
     }
 
     // Totals
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.text(`Receitas: R$ ${totals.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 14, y);
-    doc.text(`Anulação Receitas: R$ ${totals.anulacReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 90, y);
-    doc.text(`Despesas: R$ ${totals.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 170, y);
-    doc.text(`Anulação Despesas: R$ ${totals.anulacDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 240, y);
-    y += 8;
+    doc.text(`Anul. Receitas: R$ ${totals.anulacReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 85, y);
+    doc.text(`Despesas: R$ ${totals.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 160, y);
+    doc.text(`Anul. Despesas: R$ ${totals.anulacDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 230, y);
+    y += 7;
 
     // Table
     autoTable(doc, {
       startY: y,
-      head: [['Data','Natureza','Tipo','Unid. Gestora','Credor','Descrição','Receitas','Despesas','Processo']],
+      head: [['Data','Natureza','Tipo','Unid. Gestora','Unid. Orçament.','Programa','Elemento','Credor','Descrição','Receitas','Anul. Rec.','Despesas','Anul. Desp.','Processo']],
       body: sorted.map(r => [
-        r.data, r.natureza, r.tipo, r.unid_gestora, r.credor, r.descricao,
+        r.data, r.natureza, r.tipo, r.unid_gestora, r.unid_ocamentaria || '', r.programa || '', r.elemento || '',
+        r.credor, r.descricao,
         (r.receitas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
+        (r.anulac_receitas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
         (r.despesas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
+        (r.anulac_despesa || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
         r.processo || '',
       ]),
-      styles: { fontSize: 7 },
+      styles: { fontSize: 6 },
       headStyles: { fillColor: [30, 64, 175] },
+      margin: { bottom: 18 },
     });
 
-    // Footer
+    // Footer on every page - centered with separator line
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      doc.setFontSize(8);
-      doc.text('Copyright © 2026 | Zaqueu Fernandes | Suporte Técnico | WhatsApp: 88 99401-4262', 14, 200);
+      doc.setDrawColor(180);
+      doc.line(14, pageH - 12, pageW - 14, pageH - 12);
+      doc.setFontSize(7);
+      const footerText = 'Copyright © 2026 | Zaqueu Fernandes | Suporte Técnico | WhatsApp: 88 99401-4262';
+      doc.text(footerText, pageW / 2, pageH - 7, { align: 'center' });
     }
 
     doc.save('contabilidade.pdf');
-  }, [sorted, totals, dateFrom, dateTo, natureza, categoria, credor]);
+  }, [sorted, totals, dateFrom, dateTo, natureza, categoria, credor, ano, mes]);
 
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -252,6 +293,16 @@ const Contabilidade = () => {
 
           {/* Filters */}
           <div className="border-b border-border bg-muted/30 px-4 py-3">
+            {/* Buttons row above filters */}
+            <div className="flex items-center gap-3 mb-3">
+              <Button variant="destructive" size="sm" onClick={clearFilters} className="h-8">
+                <i className="fa-solid fa-eraser mr-1" />Limpar Filtros
+              </Button>
+              <button onClick={() => { logout(); navigate('/login'); }} className="ml-auto text-xs font-medium text-destructive hover:underline">
+                <i className="fa-solid fa-right-from-bracket mr-1" />Sair
+              </button>
+            </div>
+            {/* Filter fields */}
             <div className="flex flex-wrap items-end gap-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Data de</label>
@@ -260,6 +311,26 @@ const Contabilidade = () => {
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Data até</label>
                 <Input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }} className="h-8 w-36 text-xs" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Ano</label>
+                <Select value={ano || '__all__'} onValueChange={v => { setAno(v === '__all__' ? '' : v); setPage(0); }}>
+                  <SelectTrigger className="h-8 w-24 text-xs"><SelectValue placeholder="Todos" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">Todos</SelectItem>
+                    {uniqueAnos.map(a => <SelectItem key={a} value={a!}>{a}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Mês</label>
+                <Select value={mes || '__all__'} onValueChange={v => { setMes(v === '__all__' ? '' : v); setPage(0); }}>
+                  <SelectTrigger className="h-8 w-32 text-xs"><SelectValue placeholder="Todos" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">Todos</SelectItem>
+                    {MESES.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Natureza</label>
@@ -273,12 +344,52 @@ const Contabilidade = () => {
                 </Select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Categoria</label>
+                <label className="text-xs font-medium text-muted-foreground">Tipo</label>
                 <Select value={categoria || '__all__'} onValueChange={v => { setCategoria(v === '__all__' ? '' : v); setPage(0); }}>
+                  <SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder="Todos" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">Todos</SelectItem>
+                    {uniqueCategorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Unid. Gestora</label>
+                <Select value={unidGestora || '__all__'} onValueChange={v => { setUnidGestora(v === '__all__' ? '' : v); setPage(0); }}>
                   <SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder="Todas" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__all__">Todas</SelectItem>
-                    {uniqueCategorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {uniqueUnidGestora.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Unid. Orçamentária</label>
+                <Select value={unidOrcamentaria || '__all__'} onValueChange={v => { setUnidOrcamentaria(v === '__all__' ? '' : v); setPage(0); }}>
+                  <SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder="Todas" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">Todas</SelectItem>
+                    {uniqueUnidOrcamentaria.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Programa</label>
+                <Select value={programa || '__all__'} onValueChange={v => { setPrograma(v === '__all__' ? '' : v); setPage(0); }}>
+                  <SelectTrigger className="h-8 w-40 text-xs"><SelectValue placeholder="Todos" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">Todos</SelectItem>
+                    {uniqueProgramas.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Elemento</label>
+                <Select value={elemento || '__all__'} onValueChange={v => { setElemento(v === '__all__' ? '' : v); setPage(0); }}>
+                  <SelectTrigger className="h-8 w-32 text-xs"><SelectValue placeholder="Todos" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">Todos</SelectItem>
+                    {uniqueElementos.map(el => <SelectItem key={el} value={el}>{el}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -294,12 +405,6 @@ const Contabilidade = () => {
                 <label className="text-xs font-medium text-muted-foreground">Descrição</label>
                 <Input placeholder="Descrição" value={descricao} onChange={e => { setDescricao(e.target.value); setPage(0); }} className="h-8 w-36 text-xs" />
               </div>
-              <Button variant="destructive" size="sm" onClick={clearFilters} className="h-8">
-                <i className="fa-solid fa-eraser fa-spin mr-1" />Limpar Filtros
-              </Button>
-              <button onClick={() => { logout(); navigate('/login'); }} className="ml-auto text-xs font-medium text-destructive hover:underline">
-                <i className="fa-solid fa-right-from-bracket mr-1" />Sair
-              </button>
             </div>
           </div>
 
@@ -355,10 +460,15 @@ const Contabilidade = () => {
                             ['natureza', 'Natureza'],
                             ['tipo', 'Tipo'],
                             ['unid_gestora', 'Unid. Gestora'],
+                            ['unid_ocamentaria', 'Unid. Orçament.'],
+                            ['programa', 'Programa'],
+                            ['elemento', 'Elemento'],
                             ['credor', 'Credor'],
                             ['descricao', 'Descrição'],
                             ['receitas', 'Receitas'],
+                            ['anulac_receitas', 'Anul. Rec.'],
                             ['despesas', 'Despesas'],
+                            ['anulac_despesa', 'Anul. Desp.'],
                           ] as [keyof Registro, string][]).map(([col, label]) => (
                             <TableHead key={col} className="cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort(col)}>
                               {label}<SortIcon col={col} />
@@ -374,10 +484,15 @@ const Contabilidade = () => {
                             <TableCell>{r.natureza}</TableCell>
                             <TableCell>{r.tipo}</TableCell>
                             <TableCell>{r.unid_gestora}</TableCell>
+                            <TableCell>{r.unid_ocamentaria}</TableCell>
+                            <TableCell>{r.programa}</TableCell>
+                            <TableCell>{r.elemento}</TableCell>
                             <TableCell>{r.credor}</TableCell>
                             <TableCell className="max-w-[200px] truncate">{r.descricao}</TableCell>
                             <TableCell className="text-right">{fmt(r.receitas || 0)}</TableCell>
+                            <TableCell className="text-right">{fmt(r.anulac_receitas || 0)}</TableCell>
                             <TableCell className="text-right">{fmt(r.despesas || 0)}</TableCell>
+                            <TableCell className="text-right">{fmt(r.anulac_despesa || 0)}</TableCell>
                             <TableCell>
                               {r.processo ? (
                                 <a href={r.processo} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/70">
@@ -420,14 +535,20 @@ const Contabilidade = () => {
                   <Card className="border-0 shadow">
                     <CardContent className="p-4">
                       <h3 className="mb-3 text-sm font-semibold font-[Montserrat]">Despesas por Unidade Gestora</h3>
-                      <ResponsiveContainer width="100%" height={280}>
-                        <PieChart>
-                          <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
-                            {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                          </Pie>
-                          <Tooltip formatter={(v: number) => fmt(v)} />
-                        </PieChart>
-                      </ResponsiveContainer>
+                      {pieData.length === 0 ? (
+                        <div className="flex items-center justify-center h-[280px] text-muted-foreground text-sm">
+                          Nenhum dado de despesa disponível
+                        </div>
+                      ) : (
+                        <ResponsiveContainer width="100%" height={280}>
+                          <PieChart>
+                            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
+                              {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                            </Pie>
+                            <Tooltip formatter={(v: number) => fmt(v)} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      )}
                     </CardContent>
                   </Card>
 

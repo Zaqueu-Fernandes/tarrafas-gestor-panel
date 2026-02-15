@@ -15,7 +15,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-const PHONE_REGEX = /^\(88\)\s?9\d{8}$/;
+const PHONE_REGEX = /^\(\d{2}\)\s?9\d{8}$/;
 
 function formatPhone(value: string) {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -50,7 +50,7 @@ const Cadastro = () => {
       return;
     }
     if (!PHONE_REGEX.test(form.telefone)) {
-      showPopup('Telefone inválido. Formato correto: (88) 9XXXXXXXX — DDD 88 seguido de 9 e mais 8 dígitos.');
+      showPopup('Telefone inválido. Formato correto: (XX) 9XXXXXXXX — DDD seguido de 9 e mais 8 dígitos.');
       return;
     }
 
@@ -100,7 +100,7 @@ const Cadastro = () => {
               </div>
               <div className="space-y-1">
                 <Label>Telefone</Label>
-                <Input placeholder="(88) 9XXXXXXXX" value={form.telefone} onChange={(e) => handleChange('telefone', e.target.value)} maxLength={15} />
+                <Input placeholder="(XX) 9XXXXXXXX" value={form.telefone} onChange={(e) => handleChange('telefone', e.target.value)} maxLength={15} />
               </div>
               <div className="space-y-1">
                 <Label>Cargo ou Função</Label>
