@@ -364,8 +364,8 @@ const Contabilidade = () => {
               <Button variant="destructive" size="sm" onClick={clearFilters} className="h-8">
                 <i className="fa-solid fa-eraser mr-1" />Limpar Filtros
               </Button>
-              <button onClick={() => { logout(); navigate('/login'); }} className="ml-auto text-xs font-medium text-destructive hover:underline">
-                <i className="fa-solid fa-right-from-bracket mr-1" />Sair
+              <button onClick={() => navigate('/boas-vindas')} className="ml-auto text-xs font-medium text-primary hover:underline">
+                <i className="fa-solid fa-arrow-left mr-1" />Voltar
               </button>
             </div>
             {/* Filter fields */}
