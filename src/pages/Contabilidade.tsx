@@ -82,17 +82,17 @@ const Contabilidade = () => {
     let f = [...data];
     if (dateFrom) f = f.filter(r => r.data >= dateFrom);
     if (dateTo) f = f.filter(r => r.data <= dateTo);
-    if (natureza !== 'Todos') f = f.filter(r => r.natureza === natureza);
-    if (categoria) f = f.filter(r => r.tipo?.toLowerCase().includes(categoria.toLowerCase()));
+    if (natureza !== 'Todos') f = f.filter(r => r.natureza?.toLowerCase() === natureza.toLowerCase());
+    if (categoria) f = f.filter(r => r.tipo?.toLowerCase() === categoria.toLowerCase());
     if (credor) f = f.filter(r => r.credor?.toLowerCase().includes(credor.toLowerCase()));
     if (docCaixa) f = f.filter(r => r.doc_caixa?.toLowerCase().includes(docCaixa.toLowerCase()));
     if (descricao) f = f.filter(r => r.descricao?.toLowerCase().includes(descricao.toLowerCase()));
     if (ano) f = f.filter(r => r.data?.slice(0, 4) === ano);
     if (mes) f = f.filter(r => r.data?.slice(5, 7) === mes);
-    if (unidGestora) f = f.filter(r => r.unid_gestora?.toLowerCase().includes(unidGestora.toLowerCase()));
-    if (unidOrcamentaria) f = f.filter(r => r.unid_ocamentaria?.toLowerCase().includes(unidOrcamentaria.toLowerCase()));
-    if (programa) f = f.filter(r => r.programa?.toLowerCase().includes(programa.toLowerCase()));
-    if (elemento) f = f.filter(r => String(r.elemento || '').includes(elemento));
+    if (unidGestora) f = f.filter(r => r.unid_gestora?.toLowerCase() === unidGestora.toLowerCase());
+    if (unidOrcamentaria) f = f.filter(r => r.unid_ocamentaria?.toLowerCase() === unidOrcamentaria.toLowerCase());
+    if (programa) f = f.filter(r => r.programa?.toLowerCase() === programa.toLowerCase());
+    if (elemento) f = f.filter(r => String(r.elemento || '') === elemento);
     return f;
   }, [data, dateFrom, dateTo, natureza, categoria, credor, docCaixa, descricao, ano, mes, unidGestora, unidOrcamentaria, programa, elemento]);
 
@@ -134,13 +134,39 @@ const Contabilidade = () => {
     return <i className={`fa-solid fa-sort-${sortDir === 'asc' ? 'up' : 'down'} ml-1 text-primary`} />;
   };
 
-  // Unique values
-  const uniqueCategorias = useMemo(() => [...new Set(data.map(r => r.tipo).filter(Boolean))].sort(), [data]);
-  const uniqueAnos = useMemo(() => [...new Set(data.map(r => r.data?.slice(0, 4)).filter(Boolean))].sort(), [data]);
-  const uniqueUnidGestora = useMemo(() => [...new Set(data.map(r => r.unid_gestora).filter(Boolean))].sort(), [data]);
-  const uniqueUnidOrcamentaria = useMemo(() => [...new Set(data.map(r => r.unid_ocamentaria).filter(Boolean))].sort(), [data]);
-  const uniqueProgramas = useMemo(() => [...new Set(data.map(r => r.programa).filter(Boolean))].sort(), [data]);
-  const uniqueElementos = useMemo(() => [...new Set(data.map(r => String(r.elemento)).filter(v => v && v !== 'undefined' && v !== 'null'))].sort(), [data]);
+  // Cascading filter: each filter's options are derived from data filtered by all OTHER active filters
+  const cascadeBase = useMemo(() => {
+    // Apply only date/text filters as the base for cascading selects
+    let f = [...data];
+    if (dateFrom) f = f.filter(r => r.data >= dateFrom);
+    if (dateTo) f = f.filter(r => r.data <= dateTo);
+    if (credor) f = f.filter(r => r.credor?.toLowerCase().includes(credor.toLowerCase()));
+    if (docCaixa) f = f.filter(r => r.doc_caixa?.toLowerCase().includes(docCaixa.toLowerCase()));
+    if (descricao) f = f.filter(r => r.descricao?.toLowerCase().includes(descricao.toLowerCase()));
+    return f;
+  }, [data, dateFrom, dateTo, credor, docCaixa, descricao]);
+
+  // Each cascading unique list filters by all selected values EXCEPT its own
+  const cascadeForField = useCallback((excludeField: string) => {
+    let f = cascadeBase;
+    if (excludeField !== 'ano' && ano) f = f.filter(r => r.data?.slice(0, 4) === ano);
+    if (excludeField !== 'mes' && mes) f = f.filter(r => r.data?.slice(5, 7) === mes);
+    if (excludeField !== 'natureza' && natureza !== 'Todos') f = f.filter(r => r.natureza?.toLowerCase() === natureza.toLowerCase());
+    if (excludeField !== 'categoria' && categoria) f = f.filter(r => r.tipo?.toLowerCase() === categoria.toLowerCase());
+    if (excludeField !== 'unidGestora' && unidGestora) f = f.filter(r => r.unid_gestora?.toLowerCase() === unidGestora.toLowerCase());
+    if (excludeField !== 'unidOrcamentaria' && unidOrcamentaria) f = f.filter(r => r.unid_ocamentaria?.toLowerCase() === unidOrcamentaria.toLowerCase());
+    if (excludeField !== 'programa' && programa) f = f.filter(r => r.programa?.toLowerCase() === programa.toLowerCase());
+    if (excludeField !== 'elemento' && elemento) f = f.filter(r => String(r.elemento || '') === elemento);
+    return f;
+  }, [cascadeBase, ano, mes, natureza, categoria, unidGestora, unidOrcamentaria, programa, elemento]);
+
+  const uniqueAnos = useMemo(() => [...new Set(cascadeForField('ano').map(r => r.data?.slice(0, 4)).filter(Boolean))].sort(), [cascadeForField]);
+  const uniqueNaturezas = useMemo(() => [...new Set(cascadeForField('natureza').map(r => r.natureza).filter(Boolean))].sort(), [cascadeForField]);
+  const uniqueCategorias = useMemo(() => [...new Set(cascadeForField('categoria').map(r => r.tipo).filter(Boolean))].sort(), [cascadeForField]);
+  const uniqueUnidGestora = useMemo(() => [...new Set(cascadeForField('unidGestora').map(r => r.unid_gestora).filter(Boolean))].sort(), [cascadeForField]);
+  const uniqueUnidOrcamentaria = useMemo(() => [...new Set(cascadeForField('unidOrcamentaria').map(r => r.unid_ocamentaria).filter(Boolean))].sort(), [cascadeForField]);
+  const uniqueProgramas = useMemo(() => [...new Set(cascadeForField('programa').map(r => r.programa).filter(Boolean))].sort(), [cascadeForField]);
+  const uniqueElementos = useMemo(() => [...new Set(cascadeForField('elemento').map(r => String(r.elemento)).filter(v => v && v !== 'undefined' && v !== 'null'))].sort(), [cascadeForField]);
 
   const MESES = [
     { value: '01', label: 'Janeiro' }, { value: '02', label: 'Fevereiro' }, { value: '03', label: 'Março' },
@@ -335,11 +361,10 @@ const Contabilidade = () => {
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Natureza</label>
                 <Select value={natureza} onValueChange={v => { setNatureza(v); setPage(0); }}>
-                  <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-8 w-40 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Todos">Todos</SelectItem>
-                    <SelectItem value="Receita">Receita</SelectItem>
-                    <SelectItem value="Despesa">Despesa</SelectItem>
+                    {uniqueNaturezas.map(n => <SelectItem key={n} value={n}>{n}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
