@@ -246,7 +246,10 @@ const Contabilidade = () => {
       doc.setFontSize(8);
       y += 4;
       doc.text(filters.join(' | '), 14, y);
-      y += 6;
+      y += 3;
+      doc.setDrawColor(180);
+      doc.line(14, y, pageW - 14, y);
+      y += 4;
     }
 
     // Totals
@@ -260,7 +263,10 @@ const Contabilidade = () => {
     doc.text(`Anul. Receitas: R$ ${totals.anulacReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 85, y);
     doc.text(`Despesas: R$ ${totals.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 160, y);
     doc.text(`Anul. Despesas: R$ ${totals.anulacDespesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 230, y);
-    y += 7;
+    y += 3;
+    doc.setDrawColor(180);
+    doc.line(14, y, pageW - 14, y);
+    y += 5;
 
     // Table
     autoTable(doc, {
