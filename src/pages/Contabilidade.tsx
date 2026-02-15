@@ -226,7 +226,6 @@ const Contabilidade = () => {
 
     // Filters
     let y = 26;
-    doc.setFontSize(8);
     const filters = [];
     if (dateFrom) filters.push(`De: ${dateFrom}`);
     if (dateTo) filters.push(`Até: ${dateTo}`);
@@ -235,13 +234,28 @@ const Contabilidade = () => {
     if (credor) filters.push(`Credor: ${credor}`);
     if (ano) filters.push(`Ano: ${ano}`);
     if (mes) filters.push(`Mês: ${mes}`);
+    if (unidGestora) filters.push(`Unid. Gestora: ${unidGestora}`);
+    if (unidOrcamentaria) filters.push(`Unid. Orçamentária: ${unidOrcamentaria}`);
+    if (programa) filters.push(`Programa: ${programa}`);
+    if (elemento) filters.push(`Elemento: ${elemento}`);
     if (filters.length) {
-      doc.text(`Filtros: ${filters.join(' | ')}`, 14, y);
-      y += 5;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Filtros aplicados:', 14, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      y += 4;
+      doc.text(filters.join(' | '), 14, y);
+      y += 6;
     }
 
     // Totals
-    doc.setFontSize(9);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Subtotais filtrados:', 14, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    y += 4;
     doc.text(`Receitas: R$ ${totals.receitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 14, y);
     doc.text(`Anul. Receitas: R$ ${totals.anulacReceitas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 85, y);
     doc.text(`Despesas: R$ ${totals.despesas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 160, y);
@@ -259,11 +273,27 @@ const Contabilidade = () => {
         (r.anulac_receitas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
         (r.despesas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
         (r.anulac_despesa || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }),
-        r.processo || '',
+        r.processo ? 'Link' : '',
       ]),
       styles: { fontSize: 6 },
       headStyles: { fillColor: [30, 64, 175] },
       margin: { bottom: 18 },
+      didParseCell: (hookData: any) => {
+        // Make "Link" in Processo column blue
+        if (hookData.section === 'body' && hookData.column.index === 13 && hookData.cell.raw === 'Link') {
+          hookData.cell.styles.textColor = [0, 100, 200];
+        }
+      },
+      didDrawCell: (hookData: any) => {
+        // Add link annotation on Processo column
+        if (hookData.section === 'body' && hookData.column.index === 13 && hookData.cell.raw === 'Link') {
+          const rowIndex = hookData.row.index;
+          const url = sorted[rowIndex]?.processo;
+          if (url) {
+            doc.link(hookData.cell.x, hookData.cell.y, hookData.cell.width, hookData.cell.height, { url });
+          }
+        }
+      },
     });
 
     // Footer on every page - centered with separator line
@@ -277,7 +307,11 @@ const Contabilidade = () => {
       doc.text(footerText, pageW / 2, pageH - 7, { align: 'center' });
     }
 
-    doc.save('contabilidade.pdf');
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, '0');
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    doc.save(`relatorio-digitalizacao-${dd}-${mm}-${yyyy}.pdf`);
   }, [sorted, totals, dateFrom, dateTo, natureza, categoria, credor, ano, mes]);
 
   const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
