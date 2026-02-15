@@ -1,7 +1,7 @@
 const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-primary to-[hsl(215,70%,35%)] text-primary-foreground shadow-lg">
-      <div className="container mx-auto flex items-center gap-4 px-4 py-3">
+      <div className="container mx-auto flex items-center justify-center gap-4 px-4 py-3">
         <img
           src="https://i.ibb.co/WvQppY7v/logo.png"
           alt="Brasão Prefeitura de Tarrafas"
