@@ -32,6 +32,7 @@ const BoasVindas = () => {
   const navigate = useNavigate();
   const [depts, setDepts] = useState<Dept[]>([]);
   const [deptIcons, setDeptIcons] = useState<Record<string, string>>({});
+  const [deptDescs, setDeptDescs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,8 +54,13 @@ const BoasVindas = () => {
       }
       if (iconRes.data) {
         const map: Record<string, string> = {};
-        iconRes.data.forEach((i: any) => { map[i.dept_id] = i.icon_url; });
+        const descMap: Record<string, string> = {};
+        iconRes.data.forEach((i: any) => {
+          map[i.dept_id] = i.icon_url;
+          if (i.description) descMap[i.dept_id] = i.description;
+        });
         setDeptIcons(map);
+        setDeptDescs(descMap);
       }
       setLoading(false);
     })();
@@ -111,6 +117,9 @@ const BoasVindas = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold font-[Montserrat] text-foreground">{d.nome}</h3>
+                    {deptDescs[d.id] && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{deptDescs[d.id]}</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
