@@ -78,6 +78,21 @@ const Admin = () => {
     toast({ title: 'Usuário aprovado!' });
   };
 
+  const handleDeactivate = async (uid: string) => {
+    await supabaseExt.from('pmt_usuarios').update({ status: false }).eq('id', uid);
+    setUsers(users.map(u => u.id === uid ? { ...u, status: false } : u));
+    toast({ title: 'Usuário desativado.' });
+  };
+
+  const handleDeleteUser = async (u: User) => {
+    if (!confirm(`Deseja excluir o usuário "${u.nome}"? Essa ação é irreversível.`)) return;
+    await supabaseExt.from('pmt_usuario_departamentos').delete().eq('usuario_id', u.id);
+    await supabaseExt.from('pmt_usuarios').delete().eq('id', u.id);
+    setUsers(prev => prev.filter(x => x.id !== u.id));
+    setPerms(prev => { const n = { ...prev }; delete n[u.id]; return n; });
+    toast({ title: `Usuário "${u.nome}" excluído.` });
+  };
+
   const togglePerm = (uid: string, deptId: string) => {
     const current = perms[uid] || [];
     const next = current.includes(deptId)
@@ -323,9 +338,9 @@ const Admin = () => {
                               <i className="fa-solid fa-circle-check" /> Ativo
                             </span>
                           ) : (
-                            <Button size="sm" variant="outline" onClick={() => handleApprove(u.id)}>
-                              Aprovar
-                            </Button>
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                              <i className="fa-solid fa-circle-xmark" /> Inativo
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -342,17 +357,35 @@ const Admin = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            onClick={() => savePerm(u.id)}
-                            disabled={saving === u.id}
-                          >
-                            {saving === u.id ? (
-                              <i className="fa-solid fa-spinner fa-spin" />
-                            ) : (
-                              'Salvar Permissões'
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => savePerm(u.id)}
+                              disabled={saving === u.id}
+                            >
+                              {saving === u.id ? (
+                                <i className="fa-solid fa-spinner fa-spin" />
+                              ) : (
+                                'Salvar'
+                              )}
+                            </Button>
+                            {u.role !== 'admin' && (
+                              <>
+                                {u.status ? (
+                                  <Button size="sm" variant="outline" onClick={() => handleDeactivate(u.id)}>
+                                    <i className="fa-solid fa-ban mr-1" />Desativar
+                                  </Button>
+                                ) : (
+                                  <Button size="sm" variant="outline" onClick={() => handleApprove(u.id)}>
+                                    <i className="fa-solid fa-check mr-1" />Aprovar
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="destructive" onClick={() => handleDeleteUser(u)}>
+                                  <i className="fa-solid fa-trash mr-1" />Excluir
+                                </Button>
+                              </>
                             )}
-                          </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
