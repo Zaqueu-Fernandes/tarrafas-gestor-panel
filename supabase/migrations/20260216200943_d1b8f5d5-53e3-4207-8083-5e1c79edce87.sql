@@ -1,0 +1,1 @@
+ALTER TABLE public.dept_icons ADD COLUMN IF NOT EXISTS description text;

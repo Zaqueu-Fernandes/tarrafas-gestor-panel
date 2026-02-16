@@ -29,6 +29,7 @@ const Admin = () => {
 
   // New dept state
   const [newDeptName, setNewDeptName] = useState('');
+  const [newDeptDesc, setNewDeptDesc] = useState('');
   const [newDeptIcon, setNewDeptIcon] = useState<File | null>(null);
   const [addingDept, setAddingDept] = useState(false);
   const newIconInputRef = useRef<HTMLInputElement>(null);
@@ -36,12 +37,14 @@ const Admin = () => {
   // Edit dept state
   const [editDept, setEditDept] = useState<Dept | null>(null);
   const [editName, setEditName] = useState('');
+  const [editDesc, setEditDesc] = useState('');
   const [editIcon, setEditIcon] = useState<File | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const editIconInputRef = useRef<HTMLInputElement>(null);
 
   // Dept icons mapping (from Lovable Cloud)
   const [deptIcons, setDeptIcons] = useState<Record<string, string>>({});
+  const [deptDescs, setDeptDescs] = useState<Record<string, string>>({});
 
   const fetchAll = async () => {
     setLoading(true);
@@ -63,9 +66,11 @@ const Admin = () => {
     // Fetch icon mappings from Lovable Cloud
     const { data: icons } = await supabase.from('dept_icons').select('*');
     if (icons) {
-      const map: Record<string, string> = {};
-      icons.forEach((i: any) => { map[i.dept_id] = i.icon_url; });
-      setDeptIcons(map);
+      const iconMap: Record<string, string> = {};
+      const descMap: Record<string, string> = {};
+      icons.forEach((i: any) => { iconMap[i.dept_id] = i.icon_url; if (i.description) descMap[i.dept_id] = i.description; });
+      setDeptIcons(iconMap);
+      setDeptDescs(descMap);
     }
     setLoading(false);
   };
@@ -139,12 +144,20 @@ const Admin = () => {
       toast({ title: 'Erro ao criar departamento', description: error.message, variant: 'destructive' });
     } else if (data) {
       const dept = data as Dept;
-      if (newDeptIcon) {
-        const url = await uploadIcon(dept.id, newDeptIcon);
-        if (url) setDeptIcons(prev => ({ ...prev, [dept.id]: url }));
+      // Save description and/or icon
+      if (newDeptIcon || newDeptDesc.trim()) {
+        if (newDeptIcon) {
+          const url = await uploadIcon(dept.id, newDeptIcon);
+          if (url) setDeptIcons(prev => ({ ...prev, [dept.id]: url }));
+        }
+        if (newDeptDesc.trim()) {
+          await supabase.from('dept_icons').upsert({ dept_id: dept.id, icon_url: deptIcons[dept.id] || '', description: newDeptDesc.trim() });
+          setDeptDescs(prev => ({ ...prev, [dept.id]: newDeptDesc.trim() }));
+        }
       }
       setDepts(prev => [...prev, dept].sort((a, b) => a.nome.localeCompare(b.nome)));
       setNewDeptName('');
+      setNewDeptDesc('');
       setNewDeptIcon(null);
       if (newIconInputRef.current) newIconInputRef.current.value = '';
       toast({ title: `Departamento "${nome}" criado!` });
@@ -175,6 +188,7 @@ const Admin = () => {
   const openEdit = (dept: Dept) => {
     setEditDept(dept);
     setEditName(dept.nome);
+    setEditDesc(deptDescs[dept.id] || '');
     setEditIcon(null);
   };
 
@@ -186,6 +200,9 @@ const Admin = () => {
       const url = await uploadIcon(editDept.id, editIcon);
       if (url) setDeptIcons(prev => ({ ...prev, [editDept.id]: url }));
     }
+    // Save description
+    await supabase.from('dept_icons').upsert({ dept_id: editDept.id, icon_url: deptIcons[editDept.id] || '', description: editDesc.trim() || null });
+    setDeptDescs(prev => ({ ...prev, [editDept.id]: editDesc.trim() }));
     setDepts(prev => prev.map(d => d.id === editDept.id ? { ...d, nome: editName.trim() } : d));
     setSavingEdit(false);
     setEditDept(null);
@@ -246,6 +263,14 @@ const Admin = () => {
                     />
                   </div>
                   <div className="flex-1">
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">Descrição</label>
+                    <Input
+                      placeholder="Ex: Gestão de pessoal e folha de pagamento"
+                      value={newDeptDesc}
+                      onChange={(e) => setNewDeptDesc(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex-1">
                     <label className="mb-1 block text-xs font-medium text-muted-foreground">Ícone (imagem)</label>
                     <Input
                       ref={newIconInputRef}
@@ -285,7 +310,12 @@ const Admin = () => {
                           <i className="fa-solid fa-folder text-primary text-sm" />
                         </div>
                       )}
-                      <span className="flex-1 text-sm font-medium">{d.nome}</span>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium">{d.nome}</span>
+                        {deptDescs[d.id] && (
+                          <p className="text-xs text-muted-foreground">{deptDescs[d.id]}</p>
+                        )}
+                      </div>
                       <button
                         onClick={() => openEdit(d)}
                         className="text-xs text-primary hover:underline"
@@ -407,6 +437,14 @@ const Admin = () => {
             <div>
               <label className="mb-1 block text-sm font-medium">Nome</label>
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Descrição</label>
+              <Input
+                placeholder="Ex: Gestão de pessoal e folha de pagamento"
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+              />
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">Ícone (imagem)</label>
