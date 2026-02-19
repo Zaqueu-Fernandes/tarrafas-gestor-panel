@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { supabaseExt } from '@/lib/supabaseExternal';
+import { Settings } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import UnderDevelopment from '@/components/UnderDevelopment';
 
 interface DeptTab {
@@ -59,9 +61,9 @@ const Departamento = () => {
 
   return (
     <AppLayout>
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-[calc(100vh-8rem)]">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-56 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
+        <aside className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
           <nav className="flex flex-col gap-1 p-3">
             {tabs.map(tab => (
               <button
@@ -99,7 +101,7 @@ const Departamento = () => {
             ))}
           </div>
 
-          {/* Tab content - placeholder for now */}
+          {/* Tab content */}
           <div className="p-6">
             <div className="mb-4 flex items-center gap-3">
               <button onClick={() => navigate('/boas-vindas')} className="text-xs font-medium text-primary hover:underline">
@@ -108,8 +110,23 @@ const Departamento = () => {
               <h2 className="text-lg font-bold font-[Montserrat]">{deptName} — {tabs.find(t => t.slug === activeTab)?.nome}</h2>
             </div>
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-              <i className={`${tabs.find(t => t.slug === activeTab)?.icon || 'fa-solid fa-file'} text-4xl mb-3 text-primary/40`} />
-              <p className="text-sm">Conteúdo da aba em desenvolvimento.</p>
+              <div className="relative mb-8">
+                <Settings
+                  className="animate-[spin_4s_linear_infinite] text-primary/80"
+                  size={96}
+                  strokeWidth={1.5}
+                />
+                <Settings
+                  className="absolute top-12 left-16 animate-[spin_3s_linear_infinite_reverse] text-primary/50"
+                  size={48}
+                  strokeWidth={1.5}
+                />
+              </div>
+              <h3 className="mb-3 text-lg font-semibold font-[Montserrat] text-foreground">
+                Esta aba está em desenvolvimento.
+              </h3>
+              <p className="text-sm">Em caso de dúvidas, entre em contato com o desenvolvedor.</p>
+              <WhatsAppButton />
             </div>
           </div>
         </div>
