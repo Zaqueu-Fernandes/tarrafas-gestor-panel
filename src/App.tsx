@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import Contabilidade from "./pages/Contabilidade";
 import Departamento from "./pages/Departamento";
 import NotFound from "./pages/NotFound";
+import InstallPWA from "./components/InstallPWA";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <InstallPWA />
         </HashRouter>
       </AuthProvider>
     </TooltipProvider>
