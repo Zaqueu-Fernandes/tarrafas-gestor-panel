@@ -35,6 +35,36 @@ export type Database = {
         }
         Relationships: []
       }
+      dept_tabs: {
+        Row: {
+          created_at: string
+          dept_id: string
+          icon: string | null
+          id: string
+          nome: string
+          ordem: number | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          dept_id: string
+          icon?: string | null
+          id?: string
+          nome: string
+          ordem?: number | null
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          dept_id?: string
+          icon?: string | null
+          id?: string
+          nome?: string
+          ordem?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
