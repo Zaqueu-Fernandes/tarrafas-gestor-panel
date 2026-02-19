@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import DeptTabsManager from '@/components/admin/DeptTabsManager';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -338,6 +339,9 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* ── Department Tabs ── */}
+            <DeptTabsManager depts={depts} />
 
             {/* ── Users Table ── */}
             <Card className="border-0 shadow-lg">
