@@ -324,9 +324,9 @@ const Contabilidade = () => {
 
   return (
     <AppLayout>
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-[calc(100vh-8rem)]">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-56 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
+        <aside className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
           <nav className="flex flex-col gap-1 p-3">
             <button
               onClick={() => setTab('digitalizacao')}
