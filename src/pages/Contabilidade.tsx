@@ -525,7 +525,10 @@ const Contabilidade = () => {
 
                   {/* Export */}
                   <div className="mb-3 flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{sorted.length} registros</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                      <i className="fa-solid fa-list-ol text-xs" />
+                      {sorted.length} registros
+                    </span>
                     <Button size="sm" variant="outline" onClick={exportPDF}>
                       <i className="fa-solid fa-file-pdf mr-1" />Exportar PDF
                     </Button>
