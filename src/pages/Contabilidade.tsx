@@ -529,7 +529,7 @@ const Contabilidade = () => {
                       <i className="fa-solid fa-list-ol text-xs" />
                       {sorted.length} registros
                     </span>
-                    <Button size="sm" variant="outline" onClick={exportPDF}>
+                    <Button size="sm" onClick={exportPDF} className="bg-red-600 hover:bg-red-700 text-white shadow-sm">
                       <i className="fa-solid fa-file-pdf mr-1" />Exportar PDF
                     </Button>
                   </div>
