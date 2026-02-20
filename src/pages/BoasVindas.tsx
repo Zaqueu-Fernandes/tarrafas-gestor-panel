@@ -73,21 +73,21 @@ const BoasVindas = () => {
 
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold font-[Montserrat] text-foreground">
+      <div className="container mx-auto px-4 py-10">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-extrabold font-[Montserrat] text-foreground md:text-3xl">
             Bem-Vindo ao Painel do Gestor
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground mx-auto max-w-2xl">
+          <p className="mt-2 text-sm text-muted-foreground mx-auto max-w-xl leading-relaxed">
             Plataforma centralizada para acompanhamento e gestão do acervo de documentos digitalizados da administração municipal de Tarrafas-CE
           </p>
-          <div className="mt-3 flex items-center justify-center gap-3">
+          <div className="mt-4 flex items-center justify-center gap-3">
             {user?.role === 'admin' && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="shadow-sm">
                 <i className="fa-solid fa-gear mr-2" />Admin
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={logout} className="text-destructive">
+            <Button variant="ghost" size="sm" onClick={logout} className="text-destructive hover:text-destructive">
               <i className="fa-solid fa-right-from-bracket mr-1" />Sair
             </Button>
           </div>
@@ -100,15 +100,16 @@ const BoasVindas = () => {
         ) : depts.length === 0 ? (
           <p className="text-center text-muted-foreground py-20">Nenhum departamento vinculado.</p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {depts.map((d) => (
               <Card
                 key={d.id}
-                className="relative overflow-hidden transition-all cursor-pointer hover:shadow-lg hover:-translate-y-0.5"
+                className="group relative overflow-hidden cursor-pointer glass-card transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-primary/20"
                 onClick={() => handleDeptClick(d.nome)}
               >
-                <CardContent className="flex items-center gap-4 p-6">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                <CardContent className="relative flex items-center gap-4 p-6">
+                  <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 overflow-hidden ring-1 ring-primary/10 transition-shadow duration-200 group-hover:ring-primary/20 group-hover:shadow-sm">
                     {deptIcons[d.id] ? (
                       <img src={deptIcons[d.id]} alt={d.nome} className="h-full w-full object-cover" />
                     ) : (
@@ -116,11 +117,12 @@ const BoasVindas = () => {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-semibold font-[Montserrat] text-foreground">{d.nome}</h3>
+                    <h3 className="font-semibold font-[Montserrat] text-foreground group-hover:text-primary transition-colors duration-200">{d.nome}</h3>
                     {deptDescs[d.id] && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{deptDescs[d.id]}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{deptDescs[d.id]}</p>
                     )}
                   </div>
+                  <i className="fa-solid fa-chevron-right text-xs text-muted-foreground/40 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 </CardContent>
               </Card>
             ))}
