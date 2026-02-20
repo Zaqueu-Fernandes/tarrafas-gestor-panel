@@ -10,7 +10,7 @@ const Header = () => {
         />
         <div>
           <h1 className="text-xl font-bold md:text-2xl font-[Montserrat]">
-            &nbsp;&nbsp;&nbsp;Painel do Gestor
+            &nbsp;Painel do Gestor
           </h1>
           <h2 className="text-xs font-medium opacity-75 md:text-sm font-[Montserrat]">
             Prefeitura Municipal de Tarrafas
