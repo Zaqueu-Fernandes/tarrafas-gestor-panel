@@ -13,7 +13,7 @@ const Header = () => {
             Painel do Gestor
           </h1>
           <h2 className="text-xs font-medium opacity-75 md:text-sm font-[Montserrat]">
-            Prefeitura Municipal de Tarrafas-CE
+            Prefeitura Municipal de Tarrafas
           </h2>
         </div>
       </div>
