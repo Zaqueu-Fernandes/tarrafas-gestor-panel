@@ -63,19 +63,22 @@ const Departamento = () => {
     <AppLayout>
       <div className="flex flex-1 min-h-[calc(100vh-8rem)]">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
-          <nav className="flex flex-col gap-1 p-3">
+        <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground sidebar-glow">
+          <div className="px-4 pt-4 pb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">{deptName}</p>
+          </div>
+          <nav className="flex flex-col gap-0.5 px-3 pb-3">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.slug)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
                   activeTab === tab.slug
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'hover:bg-sidebar-accent/50'
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+                    : 'hover:bg-sidebar-accent/40 text-sidebar-foreground/70 hover:text-sidebar-foreground'
                 }`}
               >
-                <i className={tab.icon} />
+                <i className={`${tab.icon} w-4 text-center`} />
                 {tab.nome}
               </button>
             ))}
@@ -102,31 +105,34 @@ const Departamento = () => {
           </div>
 
           {/* Tab content */}
-          <div className="p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <button onClick={() => navigate('/boas-vindas')} className="text-xs font-medium text-primary hover:underline">
-                <i className="fa-solid fa-arrow-left mr-1" />Voltar
+          <div className="p-6 md:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <button onClick={() => navigate('/boas-vindas')} className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline underline-offset-2">
+                <i className="fa-solid fa-arrow-left text-[10px]" />Voltar
               </button>
-              <h2 className="text-lg font-bold font-[Montserrat]">{deptName} — {tabs.find(t => t.slug === activeTab)?.nome}</h2>
+              <div className="h-4 w-px bg-border" />
+              <h2 className="text-lg font-bold font-[Montserrat] text-foreground">{tabs.find(t => t.slug === activeTab)?.nome}</h2>
             </div>
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-              <div className="relative mb-8">
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+              <div className="relative mb-8 p-6 rounded-full bg-primary/[0.06]">
                 <Settings
-                  className="animate-[spin_4s_linear_infinite] text-primary/80"
-                  size={96}
+                  className="animate-[spin_4s_linear_infinite] text-primary/70"
+                  size={80}
                   strokeWidth={1.5}
                 />
                 <Settings
-                  className="absolute top-12 left-16 animate-[spin_3s_linear_infinite_reverse] text-primary/50"
-                  size={48}
+                  className="absolute bottom-4 right-2 animate-[spin_3s_linear_infinite_reverse] text-primary/35"
+                  size={36}
                   strokeWidth={1.5}
                 />
               </div>
-              <h3 className="mb-3 text-lg font-semibold font-[Montserrat] text-foreground">
-                Esta aba está em desenvolvimento.
+              <h3 className="mb-2 text-lg font-semibold font-[Montserrat] text-foreground">
+                Esta aba está em desenvolvimento
               </h3>
-              <p className="text-sm">Em caso de dúvidas, entre em contato com o desenvolvedor.</p>
-              <WhatsAppButton />
+              <p className="text-sm text-muted-foreground max-w-sm text-center leading-relaxed">Em breve estará disponível. Em caso de dúvidas, entre em contato com o desenvolvedor.</p>
+              <div className="mt-4">
+                <WhatsAppButton />
+              </div>
             </div>
           </div>
         </div>

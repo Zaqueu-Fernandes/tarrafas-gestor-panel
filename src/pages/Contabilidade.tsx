@@ -329,29 +329,32 @@ const Contabilidade = () => {
     <AppLayout>
       <div className="flex flex-1 min-h-[calc(100vh-8rem)]">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-56 flex-shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
-          <nav className="flex flex-col gap-1 p-3">
+        <aside className="hidden md:flex w-56 flex-shrink-0 flex-col bg-sidebar text-sidebar-foreground sidebar-glow">
+          <div className="px-4 pt-4 pb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">Contabilidade</p>
+          </div>
+          <nav className="flex flex-col gap-0.5 px-3 pb-3">
             <button
               onClick={() => setTab('digitalizacao')}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${tab === 'digitalizacao' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50'}`}
+              className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${tab === 'digitalizacao' ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm' : 'hover:bg-sidebar-accent/40 text-sidebar-foreground/70 hover:text-sidebar-foreground'}`}
             >
-              <i className="fa-solid fa-table-list" />
+              <i className="fa-solid fa-table-list w-4 text-center" />
               Digitalização
             </button>
             <button
               onClick={() => setTab('analise')}
-              className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${tab === 'analise' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50'}`}
+              className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${tab === 'analise' ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm' : 'hover:bg-sidebar-accent/40 text-sidebar-foreground/70 hover:text-sidebar-foreground'}`}
             >
-              <i className="fa-solid fa-chart-pie" />
+              <i className="fa-solid fa-chart-pie w-4 text-center" />
               Análise Financeira
             </button>
             {dynamicTabs.map((dt) => (
               <button
                 key={dt.id}
                 onClick={() => setTab(dt.slug)}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${tab === dt.slug ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50'}`}
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${tab === dt.slug ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm' : 'hover:bg-sidebar-accent/40 text-sidebar-foreground/70 hover:text-sidebar-foreground'}`}
               >
-                <i className={dt.icon || 'fa-solid fa-file'} />
+                <i className={`${dt.icon || 'fa-solid fa-file'} w-4 text-center`} />
                 {dt.nome}
               </button>
             ))}
@@ -376,13 +379,15 @@ const Contabilidade = () => {
           </div>
 
           {isDynamicTab ? (
-            /* Dynamic tab — Em Desenvolvimento */
-            <div className="flex flex-1 flex-col items-center justify-center py-20 px-4">
-              <Settings className="w-16 h-16 text-primary animate-spin mb-6" style={{ animationDuration: '4s' }} />
-              <h2 className="text-2xl font-bold font-[Montserrat] text-foreground mb-2">
+            <div className="flex flex-1 flex-col items-center justify-center py-16 px-4">
+              <div className="relative mb-8 p-6 rounded-full bg-primary/[0.06]">
+                <Settings className="w-16 h-16 text-primary/70 animate-spin" style={{ animationDuration: '4s' }} />
+                <Settings className="absolute bottom-3 right-1 w-7 h-7 text-primary/35 animate-spin" style={{ animationDuration: '3s', animationDirection: 'reverse' }} />
+              </div>
+              <h2 className="text-xl font-bold font-[Montserrat] text-foreground mb-2">
                 {dynamicTabs.find(t => t.slug === tab)?.nome || 'Aba'}
               </h2>
-              <p className="text-muted-foreground text-center max-w-md mb-6">
+              <p className="text-muted-foreground text-center max-w-sm leading-relaxed mb-5 text-sm">
                 Esta seção está em desenvolvimento. Em breve estará disponível com todas as funcionalidades.
               </p>
               <WhatsAppButton />
