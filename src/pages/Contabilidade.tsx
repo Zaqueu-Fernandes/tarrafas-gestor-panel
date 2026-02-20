@@ -529,7 +529,7 @@ const Contabilidade = () => {
                       <i className="fa-solid fa-list-ol text-xs" />
                       {sorted.length} registros
                     </span>
-                    <Button size="sm" onClick={exportPDF} className="bg-red-600 hover:bg-red-700 text-white shadow-sm">
+                    <Button size="sm" onClick={exportPDF} className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
                       <i className="fa-solid fa-file-pdf mr-1" />Exportar PDF
                     </Button>
                   </div>
@@ -537,7 +537,7 @@ const Contabilidade = () => {
                   {/* Table */}
                   <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
-                      <TableHeader>
+                      <TableHeader className="bg-primary">
                         <TableRow>
                           {([
                             ['data', 'Data'], ['natureza', 'Natureza'], ['tipo', 'Tipo'],
@@ -547,11 +547,11 @@ const Contabilidade = () => {
                             ['receitas', 'Receitas'], ['anulac_receitas', 'Anul. Rec.'],
                             ['despesas', 'Despesas'], ['anulac_despesa', 'Anul. Desp.'],
                           ] as [keyof Registro, string][]).map(([key, label]) => (
-                            <TableHead key={key} className="cursor-pointer whitespace-nowrap text-xs" onClick={() => handleSort(key)}>
+                            <TableHead key={key} className="cursor-pointer whitespace-nowrap text-xs text-primary-foreground" onClick={() => handleSort(key)}>
                               {label}<SortIcon col={key} />
                             </TableHead>
                           ))}
-                          <TableHead className="text-xs">Processo</TableHead>
+                          <TableHead className="text-xs text-primary-foreground">Processo</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
