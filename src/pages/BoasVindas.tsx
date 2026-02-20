@@ -109,9 +109,9 @@ const BoasVindas = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <CardContent className="relative flex items-center gap-4 p-6">
-                  <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 overflow-hidden ring-1 ring-primary/10 transition-shadow duration-200 group-hover:ring-primary/20 group-hover:shadow-sm">
+                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 overflow-hidden ring-1 ring-primary/10 transition-shadow duration-200 group-hover:ring-primary/20 group-hover:shadow-sm">
                     {deptIcons[d.id] ? (
-                      <img src={deptIcons[d.id]} alt={d.nome} className="h-full w-full object-cover" />
+                      <img src={deptIcons[d.id]} alt={d.nome} className="h-full w-full object-contain p-1" />
                     ) : (
                       <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-xl text-primary`} />
                     )}
