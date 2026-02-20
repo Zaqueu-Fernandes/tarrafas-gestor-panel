@@ -391,6 +391,9 @@ const Contabilidade = () => {
                 Esta seção está em desenvolvimento. Em breve estará disponível com todas as funcionalidades.
               </p>
               <WhatsAppButton />
+              <button onClick={() => navigate('/boas-vindas')} className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors">
+                <i className="fa-solid fa-arrow-left text-xs" />Voltar
+              </button>
             </div>
           ) : (
             <>
