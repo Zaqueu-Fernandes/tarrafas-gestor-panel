@@ -107,8 +107,8 @@ const Departamento = () => {
           {/* Tab content */}
           <div className="p-6 md:p-8">
             <div className="mb-6 flex items-center gap-3">
-              <button onClick={() => navigate('/boas-vindas')} className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline underline-offset-2">
-                <i className="fa-solid fa-arrow-left text-[10px]" />Voltar
+              <button onClick={() => navigate('/boas-vindas')} className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors">
+                <i className="fa-solid fa-arrow-left text-xs" />Voltar
               </button>
               <div className="h-4 w-px bg-border" />
               <h2 className="text-lg font-bold font-[Montserrat] text-foreground">{tabs.find(t => t.slug === activeTab)?.nome}</h2>

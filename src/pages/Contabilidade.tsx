@@ -400,9 +400,9 @@ const Contabilidade = () => {
                   <Button variant="destructive" size="sm" onClick={clearFilters} className="h-8">
                     <i className="fa-solid fa-eraser mr-1" />Limpar Filtros
                   </Button>
-                  <button onClick={() => navigate('/boas-vindas')} className="ml-auto text-xs font-medium text-primary hover:underline">
-                    <i className="fa-solid fa-arrow-left mr-1" />Voltar
-                  </button>
+                   <button onClick={() => navigate('/boas-vindas')} className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary/20 transition-colors">
+                     <i className="fa-solid fa-arrow-left text-xs" />Voltar
+                   </button>
                 </div>
                 <div className="flex flex-wrap items-end gap-3">
                   <div className="space-y-1">
