@@ -104,16 +104,16 @@ const BoasVindas = () => {
             {depts.map((d) => (
               <Card
                 key={d.id}
-                className="group relative overflow-hidden cursor-pointer glass-card transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-primary/20"
+                className="group relative overflow-hidden cursor-pointer bg-card border-none shadow-none transition-all duration-200 hover:-translate-y-1"
                 onClick={() => handleDeptClick(d.nome)}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <CardContent className="relative flex items-center gap-4 p-6">
-                 <div className="flex h-18 w-18 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 overflow-hidden ring-1 ring-primary/10">
+                 <div className="flex shrink-0 items-center justify-center rounded-xl overflow-hidden w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px]">
                     {deptIcons[d.id] ? (
-                      <img src={deptIcons[d.id]} alt={d.nome} className="h-full w-full object-contain p-1" />
+                      <img src={deptIcons[d.id]} alt={d.nome} className="w-full h-full object-contain" />
                     ) : (
-                      <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-xl text-primary`} />
+                      <i className={`fa-solid ${DEPT_ICONS[d.nome] || 'fa-folder'} text-3xl text-primary`} />
                     )}
                   </div>
                   <div>
