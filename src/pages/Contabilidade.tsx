@@ -571,7 +571,7 @@ const Contabilidade = () => {
                             <TableCell className="text-xs">
                               {r.processo ? (
                                 <a href={r.processo} target="_blank" rel="noreferrer" className="text-primary hover:underline">
-                                  <i className="fa-solid fa-arrow-up-right-from-square" />
+                                  <i className="fa-solid fa-eye" />
                                 </a>
                               ) : '—'}
                             </TableCell>
