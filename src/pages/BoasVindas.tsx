@@ -109,7 +109,7 @@ const BoasVindas = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                 <CardContent className="relative flex items-center gap-4 p-6">
-                 <div className="flex shrink-0 items-center justify-center rounded-xl overflow-hidden w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px]">
+                 <div className="flex shrink-0 items-center justify-center rounded-xl overflow-hidden w-[80px] h-[80px] sm:w-[96px] sm:h-[96px] md:w-[112px] md:h-[112px] lg:w-[128px] lg:h-[128px]">
                     {deptIcons[d.id] ? (
                       <img src={deptIcons[d.id]} alt={d.nome} className="w-full h-full object-contain" />
                     ) : (
